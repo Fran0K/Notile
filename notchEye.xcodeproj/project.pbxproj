@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		90BBBB187C97185AEABCA537 /* Pods_notchEye.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB3FF4611172715290C44334 /* Pods_notchEye.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		7D8AA4282FAB268A0069C86C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +31,9 @@
 		7D8AA41A2FAB268A0069C86C /* notchEye.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = notchEye.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D8AA4272FAB268A0069C86C /* notchEyeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = notchEyeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D8AA4312FAB268A0069C86C /* notchEyeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = notchEyeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		89746530CEDBB7026B7DDA9E /* Pods-notchEye.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-notchEye.release.xcconfig"; path = "Target Support Files/Pods-notchEye/Pods-notchEye.release.xcconfig"; sourceTree = "<group>"; };
+		F03AAA3656116D9FFFAE7675 /* Pods-notchEye.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-notchEye.debug.xcconfig"; path = "Target Support Files/Pods-notchEye/Pods-notchEye.debug.xcconfig"; sourceTree = "<group>"; };
+		FB3FF4611172715290C44334 /* Pods_notchEye.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_notchEye.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -52,6 +59,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				90BBBB187C97185AEABCA537 /* Pods_notchEye.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,6 +80,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5796C79D4E29F06D2ECF7876 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FB3FF4611172715290C44334 /* Pods_notchEye.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		5D322FE23357DC3974C2E8B3 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				F03AAA3656116D9FFFAE7675 /* Pods-notchEye.debug.xcconfig */,
+				89746530CEDBB7026B7DDA9E /* Pods-notchEye.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		7D8AA4112FAB268A0069C86C = {
 			isa = PBXGroup;
 			children = (
@@ -79,6 +104,8 @@
 				7D8AA42A2FAB268A0069C86C /* notchEyeTests */,
 				7D8AA4342FAB268A0069C86C /* notchEyeUITests */,
 				7D8AA41B2FAB268A0069C86C /* Products */,
+				5D322FE23357DC3974C2E8B3 /* Pods */,
+				5796C79D4E29F06D2ECF7876 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -99,9 +126,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7D8AA43B2FAB268A0069C86C /* Build configuration list for PBXNativeTarget "notchEye" */;
 			buildPhases = (
+				B379012A62FBDEF4C0572E12 /* [CP] Check Pods Manifest.lock */,
 				7D8AA4162FAB268A0069C86C /* Sources */,
 				7D8AA4172FAB268A0069C86C /* Frameworks */,
 				7D8AA4182FAB268A0069C86C /* Resources */,
+				E17AB8F2B8AE3C32561E3B7E /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -111,8 +140,6 @@
 				7D8AA41C2FAB268A0069C86C /* notchEye */,
 			);
 			name = notchEye;
-			packageProductDependencies = (
-			);
 			productName = notchEye;
 			productReference = 7D8AA41A2FAB268A0069C86C /* notchEye.app */;
 			productType = "com.apple.product-type.application";
@@ -134,8 +161,6 @@
 				7D8AA42A2FAB268A0069C86C /* notchEyeTests */,
 			);
 			name = notchEyeTests;
-			packageProductDependencies = (
-			);
 			productName = notchEyeTests;
 			productReference = 7D8AA4272FAB268A0069C86C /* notchEyeTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -157,8 +182,6 @@
 				7D8AA4342FAB268A0069C86C /* notchEyeUITests */,
 			);
 			name = notchEyeUITests;
-			packageProductDependencies = (
-			);
 			productName = notchEyeUITests;
 			productReference = 7D8AA4312FAB268A0069C86C /* notchEyeUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -230,6 +253,52 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		B379012A62FBDEF4C0572E12 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-notchEye-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E17AB8F2B8AE3C32561E3B7E /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-notchEye/Pods-notchEye-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-notchEye/Pods-notchEye-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-notchEye/Pods-notchEye-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		7D8AA4162FAB268A0069C86C /* Sources */ = {
@@ -307,7 +376,7 @@
 				DEVELOPMENT_TEAM = WG5Z5H7TQ3;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -371,7 +440,7 @@
 				DEVELOPMENT_TEAM = WG5Z5H7TQ3;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -391,6 +460,7 @@
 		};
 		7D8AA43C2FAB268A0069C86C /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = F03AAA3656116D9FFFAE7675 /* Pods-notchEye.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -409,7 +479,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = lhc.notchEye;
+				PRODUCT_BUNDLE_IDENTIFIER = lhc.notech;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -423,6 +493,7 @@
 		};
 		7D8AA43D2FAB268A0069C86C /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 89746530CEDBB7026B7DDA9E /* Pods-notchEye.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -441,7 +512,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = lhc.notchEye;
+				PRODUCT_BUNDLE_IDENTIFIER = lhc.notech;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
