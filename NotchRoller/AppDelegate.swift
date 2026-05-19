@@ -29,7 +29,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let panel = NotchPanel(contentRect: NSRect(origin: .zero, size: panelSize))
         let containerView = PopupHitView(frame: NSRect(origin: .zero, size: panelSize))
         containerView.panel = panel
-        let hostingView = NSHostingView(rootView: NotchView(timerManager: timerManager, panelProxy: panelProxy))
+        let hostingView = NSHostingView(rootView: NotchViewLocaleWrapper(timerManager: timerManager, panelProxy: panelProxy))
         hostingView.frame = containerView.bounds
         hostingView.autoresizingMask = [.width, .height]
         containerView.addSubview(hostingView)
@@ -91,6 +91,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let x = screen.frame.midX - panelSize.width / 2
         let y = screen.frame.maxY - panelSize.height
         panel?.setFrame(NSRect(origin: NSPoint(x: x, y: y), size: panelSize), display: true)
+    }
+}
+
+// MARK: - Locale-aware wrapper for NSHostingView
+
+struct NotchViewLocaleWrapper: View {
+    let timerManager: TimerManager
+    let panelProxy: PanelProxy
+    @AppStorage("appLanguage") var appLanguage: AppLanguage = .system
+
+    var body: some View {
+        NotchView(timerManager: timerManager, panelProxy: panelProxy)
+            .environment(\.locale, appLanguage.locale)
     }
 }
 

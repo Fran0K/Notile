@@ -119,56 +119,25 @@ final class TimerManager {
 
     // MARK: - Expand / Collapse
 
-    private var isInQuietPeriod: Bool {
+    private var isOutsideActiveHours: Bool {
         let ud = UserDefaults.standard
 
-        // All day quiet
-        if ud.bool(forKey: "allDayQuiet") && ud.bool(forKey: "quietHoursEnabled") { return true }
+        guard ud.bool(forKey: "activeHoursEnabled") else { return false }
 
-        // Time-based quiet hours
-        if ud.bool(forKey: "quietHoursEnabled") {
-            let now = Calendar.current.dateComponents([.hour, .minute], from: Date())
-            let currentMinutes = Double(now.hour ?? 0) * 60 + Double(now.minute ?? 0)
-            let startMinutes = ud.double(forKey: "quietStartHour") * 60
-            let endMinutes = ud.double(forKey: "quietEndHour") * 60
+        let now = Calendar.current.dateComponents([.hour, .minute], from: Date())
+        let currentMinutes = Double(now.hour ?? 0) * 60 + Double(now.minute ?? 0)
+        let startMinutes = ud.double(forKey: "activeStartHour") * 60
+        let endMinutes = ud.double(forKey: "activeEndHour") * 60
 
-            if startMinutes <= endMinutes {
-                // e.g. 09:00 - 17:00
-                if currentMinutes >= startMinutes && currentMinutes < endMinutes { return true }
-            } else {
-                // e.g. 22:00 - 08:00 (spans midnight)
-                if currentMinutes >= startMinutes || currentMinutes < endMinutes { return true }
-            }
+        if startMinutes <= endMinutes {
+            // e.g. 08:00 - 22:00
+            return !(currentMinutes >= startMinutes && currentMinutes < endMinutes)
+        } else {
+            // e.g. 22:00 - 08:00 (active overnight)
+            return !(currentMinutes >= startMinutes || currentMinutes < endMinutes)
         }
-
-        // Do Not Disturb
-        if ud.bool(forKey: "respectDND") {
-            if #available(macOS 14.0, *) {
-                // Focus modes are managed by Intents, check status via distributed notification
-                // Simple check: query DND user default
-            }
-            let dndPath = "/Library/DoNotDisturb/DB/Assertions.json"
-            if FileManager.default.fileExists(atPath: dndPath) { return true }
-        }
-
-        // Meeting detection: check if Calendar is in fullscreen or Focus mode is "Meeting"
-        if ud.bool(forKey: "respectMeeting") {
-            // Check for active Focus mode that might indicate a meeting
-            if let focusName = getActiveFocusMode(), focusName.lowercased().contains("meeting")
-                || focusName.lowercased().contains("会议")
-                || focusName.lowercased().contains("work") {
-                return true
-            }
-        }
-
-        return false
     }
 
-    private func getActiveFocusMode() -> String? {
-        // Read active Focus mode from preferences
-        let ud = UserDefaults(suiteName: "com.apple.controlcenter")
-        return ud?.string(forKey: "NSStatusItem Visible FocusModes")
-    }
 
     private func expand(item: ReminderItem) {
         guard !isExpanded else {
@@ -177,7 +146,7 @@ final class TimerManager {
         }
         guard let stored = store.items.first(where: { $0.id == item.id }),
               isEnabled(stored) else { return }
-        if isInQuietPeriod {
+        if isOutsideActiveHours {
             scheduleReminder(item: item)
             return
         }

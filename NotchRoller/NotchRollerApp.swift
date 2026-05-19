@@ -10,20 +10,23 @@ import SwiftUI
 @main
 struct NotchRollerApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @AppStorage("appLanguage") private var appLanguage: AppLanguage = .system
 
     var body: some Scene {
         MenuBarExtra("NotchRoller", image: "MenuIcon") {
             SettingsLink {
-                Text("设置")
+                Text("menuBar.settings")
             }
             Divider()
-            Button("退出 NotchRoller") {
+            Button("menuBar.quit") {
                 NSApp.terminate(nil)
             }
         }
+        .environment(\.locale, appLanguage.locale)
 
         Settings {
             SettingsView()
+                .environment(\.locale, appLanguage.locale)
         }
     }
 }

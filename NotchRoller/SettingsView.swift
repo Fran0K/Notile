@@ -11,16 +11,19 @@ import Lottie
 import UniformTypeIdentifiers
 
 struct SettingsView: View {
+    @AppStorage("appLanguage") private var appLanguage: AppLanguage = .system
+
     var body: some View {
         TabView {
             GeneralTab()
-                .tabItem { Label("General", systemImage: "gear") }
+                .tabItem { Label("tab.general", systemImage: "gearshape.circle") }
             DisplayTab()
-                .tabItem { Label("Display", systemImage: "eye") }
+                .tabItem { Label("tab.items", systemImage: "list.bullet.circle") }
             AboutTab()
-                .tabItem { Label("About", systemImage: "info.circle") }
+                .tabItem { Label("tab.about", systemImage: "info.circle") }
         }
         .frame(width: 450, height: 550)
+        .environment(\.locale, appLanguage.locale)
     }
 }
 
@@ -32,12 +35,11 @@ struct GeneralTab: View {
     @AppStorage("isPreviewing") private var isPreviewing: Bool = false
     @AppStorage("launchAtLogin") private var launchAtLogin: Bool = false
 
-    @AppStorage("quietHoursEnabled") private var quietHoursEnabled: Bool = false
-    @AppStorage("quietStartHour") private var quietStartHour: Double = 22
-    @AppStorage("quietEndHour") private var quietEndHour: Double = 8
-    @AppStorage("allDayQuiet") private var allDayQuiet: Bool = false
-    @AppStorage("respectDND") private var respectDND: Bool = true
-    @AppStorage("respectMeeting") private var respectMeeting: Bool = true
+    @AppStorage("activeHoursEnabled") private var activeHoursEnabled: Bool = false
+    @AppStorage("activeStartHour") private var activeStartHour: Double = 8
+    @AppStorage("activeEndHour") private var activeEndHour: Double = 22
+
+    @AppStorage("appLanguage") private var appLanguage: AppLanguage = .system
 
     private var screenSize: CGSize {
         NSScreen.main?.frame.size ?? CGSize(width: 1920, height: 1080)
@@ -46,8 +48,16 @@ struct GeneralTab: View {
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
         Form {
-            Section("Launch") {
-                Toggle("Start at Login", isOn: $launchAtLogin)
+            Section("settings.general.language") {
+                Picker("settings.general.language", selection: $appLanguage) {
+                    ForEach(AppLanguage.allCases, id: \.self) { lang in
+                        Text(lang.displayName).tag(lang)
+                    }
+                }
+            }
+
+            Section("settings.general.launch") {
+                Toggle("settings.general.startAtLogin", isOn: $launchAtLogin)
                     .onChange(of: launchAtLogin) { _, newValue in
                         do {
                             if newValue {
@@ -61,72 +71,49 @@ struct GeneralTab: View {
                     }
             }
 
-            Section("Quiet Hours") {
-                Toggle("启用免打扰时段", isOn: $quietHoursEnabled)
+            Section {
+                Toggle("settings.general.enableActiveHours", isOn: $activeHoursEnabled)
 
-                if quietHoursEnabled {
-                    HStack(alignment: .center) {
-                        Text("开始")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .frame(width: 40, alignment: .leading)
-                        Picker("", selection: $quietStartHour) {
-                            ForEach(Array(stride(from: 0, to: 24, by: 0.5)), id: \.self) { hour in
-                                Text(formatHour(hour)).tag(hour)
+                if activeHoursEnabled {
+                    HStack {
+                        VStack(alignment: .center, spacing: 4) {
+                            Text("settings.general.start")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Picker("", selection: $activeStartHour) {
+                                ForEach(Array(stride(from: 0, to: 24, by: 0.5)), id: \.self) { hour in
+                                    Text(formatHour(hour)).tag(hour)
+                                }
                             }
+                            .labelsHidden()
                         }
-                        .labelsHidden()
-                        .frame(width: 100)
-                        .disabled(allDayQuiet)
-                    }
 
-                    HStack(alignment: .center) {
-                        Text("结束")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .frame(width: 40, alignment: .leading)
-                        Picker("", selection: $quietEndHour) {
-                            ForEach(Array(stride(from: 0, to: 24, by: 0.5)), id: \.self) { hour in
-                                Text(formatHour(hour)).tag(hour)
+                        Spacer()
+
+                        VStack(alignment: .center, spacing: 4) {
+                            Text("settings.general.end")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Picker("", selection: $activeEndHour) {
+                                ForEach(Array(stride(from: 0, to: 24, by: 0.5)), id: \.self) { hour in
+                                    Text(formatHour(hour)).tag(hour)
+                                }
                             }
+                            .labelsHidden()
                         }
-                        .labelsHidden()
-                        .frame(width: 100)
-                        .disabled(allDayQuiet)
-                    }
-
-                    Toggle("All Day", isOn: $allDayQuiet)
-
-                    if allDayQuiet {
-                        Text("已启用全天免打扰，将不会弹出任何提醒")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
                     }
                 }
+            } header: {
+                Text("settings.general.activeHours")
             }
 
-            Section("Do Not Disturb") {
-                Toggle("尊重免打扰模式", isOn: $respectDND)
-                if respectDND {
-                    Text("当系统开启免打扰时，暂停提醒")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
 
-                Toggle("尊重会议模式", isOn: $respectMeeting)
-                if respectMeeting {
-                    Text("当检测到日历中的会议时，暂停提醒")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-
-            Section("SIZE") {
+            Section("settings.general.size") {
                 HStack {
                     VStack(alignment: .leading) {
-                        Text("Expand Size")
+                        Text("settings.general.expandSize")
                             .fontWeight(.bold)
-                        Text("Dimensions of the expanded view")
+                        Text("settings.general.expandSizeDesc")
                             .font(.body)
                     }
                     Spacer()
@@ -134,9 +121,9 @@ struct GeneralTab: View {
 
                 HStack(alignment: .center) {
                     VStack(alignment: .center, spacing: 4) {
-                        Text("Width")
+                        Text("settings.general.width")
                             .fontWeight(.bold)
-                        Text("\(Int(expandedWidth)) pt")
+                        Text("\(Int(expandedWidth)) \(String(localized: "settings.general.pt"))")
                         Slider(value: $expandedWidth, in: 160...screenSize.width * 0.8, step: 10) {
                         } onEditingChanged: { editing in
                             isPreviewing = editing
@@ -150,9 +137,9 @@ struct GeneralTab: View {
                         .foregroundStyle(.secondary)
 
                     VStack(alignment: .center, spacing: 4) {
-                        Text("Height")
+                        Text("settings.general.height")
                             .fontWeight(.bold)
-                        Text("\(Int(expandedHeight)) pt")
+                        Text("\(Int(expandedHeight)) \(String(localized: "settings.general.pt"))")
                         Slider(value: $expandedHeight, in: 60...screenSize.height * 0.8, step: 10) {
                         } onEditingChanged: { editing in
                             isPreviewing = editing
@@ -193,7 +180,7 @@ struct DisplayTab: View {
                 Button(action: { showingAddSheet = true }) {
                     HStack {
                         Image(systemName: "plus.circle.fill")
-                        Text("添加提醒")
+                        Text("display.addReminder")
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 10)
@@ -312,40 +299,17 @@ struct ReminderConfigRow: View {
 
     private var readOnlyInfo: some View {
         VStack(alignment: .leading, spacing: 1) {
-//            HStack {
-//                Text("标题")
-//                    .frame(width: 70, alignment: .leading)
-//                Text(customTitle)
-//                Spacer()
-//            }
-//            HStack {
-//                Text("内容")
-//                    .frame(width: 70, alignment: .leading)
-//                Text(customMessage)
-//                Spacer()
-//            }
-//            HStack {
-//                Text("动画")
-//                    .frame(width: 70, alignment: .leading)
-//                if let name = resolvedLottieName {
-//                    iconView(size: 40)
-//                        .frame(width: 45, height: 45)
-//                } else {
-//                    Text("无").font(.caption).foregroundStyle(.secondary)
-//                }
-//                Spacer()
-//            }
             HStack(spacing: 4) {
-                Text("间隔：")
-                Text("\(Int(intervalMinutes)) 分钟")
+                Text("display.interval")
+                    .fontWeight(.semibold)
+                Text("\(Int(intervalMinutes)) \(String(localized: "display.minutes"))")
+                    .fontWeight(.light)
                 Spacer()
-                Text("时长：")
-                Text("\(Int(durationSeconds)) 秒")
+                Text("display.duration")
+                    .fontWeight(.semibold)
+                Text("\(Int(durationSeconds)) \(String(localized: "display.seconds"))")
+                    .fontWeight(.light)
             }
-//            HStack {
-//                
-//                Spacer()
-//            }
         }
     }
 
@@ -356,30 +320,30 @@ struct ReminderConfigRow: View {
             Button {
                 AppDelegate.shared?.timerManager.testItem(item)
             } label: {
-                Label("测试", systemImage: "play.fill")
+                Label("display.test", systemImage: "play.fill")
                     .font(.caption)
             }
             .buttonStyle(.bordered)
             .controlSize(.large)
             Spacer()
             Button(action: startEditing) {
-                Label("编辑", systemImage: "pencil")
+                Label("display.edit", systemImage: "pencil")
                     .font(.caption)
             }
             .buttonStyle(.bordered)
             .controlSize(.large)
             Button(role: .destructive, action: { showingDeleteConfirm = true }) {
-                Label("删除", systemImage: "trash")
+                Label("display.delete", systemImage: "trash")
                     .font(.caption)
                     .foregroundColor(.red)
             }
             .buttonStyle(.bordered)
             .controlSize(.large)
-            .alert("删除提醒", isPresented: $showingDeleteConfirm) {
-                Button("取消", role: .cancel) {}
-                Button("删除", role: .destructive) { store.delete(item) }
+            .alert("display.deleteReminder", isPresented: $showingDeleteConfirm) {
+                Button("common.cancel", role: .cancel) {}
+                Button("display.delete", role: .destructive) { store.delete(item) }
             } message: {
-                Text("确定要删除「\(customTitle)」吗？")
+                Text("display.deleteConfirm \(customTitle)")
             }
         }
     }
@@ -389,20 +353,20 @@ struct ReminderConfigRow: View {
     private var editForm: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .center) {
-                Text("标题").font(.caption).foregroundStyle(.secondary).frame(width: 70, alignment: .leading)
+                Text("display.title").font(.caption).foregroundStyle(.secondary).frame(width: 70, alignment: .leading)
                 TextField("", text: $draftTitle).textFieldStyle(.roundedBorder)
             }
             HStack(alignment: .center) {
-                Text("内容").font(.caption).foregroundStyle(.secondary).frame(width: 70, alignment: .leading)
+                Text("display.message").font(.caption).foregroundStyle(.secondary).frame(width: 70, alignment: .leading)
                 TextField("", text: $draftMessage).textFieldStyle(.roundedBorder)
             }
             // Lottie
             HStack(alignment: .top) {
-                Text("动画").font(.caption).foregroundStyle(.secondary).frame(width: 70, alignment: .leading).padding(.top, 4)
+                Text("display.animation").font(.caption).foregroundStyle(.secondary).frame(width: 70, alignment: .leading).padding(.top, 4)
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         Button(action: chooseLottieFileForDraft) {
-                            HStack { Image(systemName: "doc.badge.plus"); Text(draftLottieName.isEmpty ? "选择文件" : "更换文件") }
+                            HStack { Image(systemName: "doc.badge.plus"); Text(draftLottieName.isEmpty ? String(localized: "display.chooseFile") : String(localized: "display.changeFile")) }
                         }
                         if !draftLottieName.isEmpty {
                             Button(action: { draftLottieName = "" }) {
@@ -417,18 +381,18 @@ struct ReminderConfigRow: View {
                 }
             }
             HStack(alignment: .center) {
-                Text("间隔").font(.caption).foregroundStyle(.secondary).frame(width: 70, alignment: .leading)
+                Text("display.interval").font(.caption).foregroundStyle(.secondary).frame(width: 70, alignment: .leading)
                 Spacer()
                 TextField("", value: $draftInterval, format: .number).textFieldStyle(.roundedBorder).frame(width: 60)
                 Stepper("", value: $draftInterval, in: 1...120, step: 1).labelsHidden()
-                Text("Min")
+                Text("display.min")
             }
             HStack(alignment: .center) {
-                Text("时长").font(.caption).foregroundStyle(.secondary).frame(width: 70, alignment: .leading)
+                Text("display.duration").font(.caption).foregroundStyle(.secondary).frame(width: 70, alignment: .leading)
                 Spacer()
                 TextField("", value: $draftDuration, format: .number).textFieldStyle(.roundedBorder).frame(width: 60)
                 Stepper("", value: $draftDuration, in: 5...60, step: 1).labelsHidden()
-                Text("S")
+                Text("display.sec")
             }
         }
     }
@@ -438,13 +402,13 @@ struct ReminderConfigRow: View {
     private var saveCancelButtons: some View {
         HStack {
             Spacer()
-            Button("取消") { cancelEditing() }
+            Button("common.cancel") { cancelEditing() }
                 .buttonStyle(.bordered)
                 .controlSize(.large)
-            Button("保存") { saveEditing() }
+            Button("common.save") { saveEditing() }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
-            
+
         }
     }
 
@@ -494,10 +458,10 @@ struct ReminderConfigRow: View {
                 } else if type == .image {
                     ScaledMediaImage(path: path, size: 64, cornerRadius: 6)
                 } else {
-                    Text("无媒体").font(.caption).foregroundStyle(.secondary)
+                    Text("display.noMedia").font(.caption).foregroundStyle(.secondary)
                 }
             } else {
-                Text("无媒体").font(.caption).foregroundStyle(.secondary)
+                Text("display.noMedia").font(.caption).foregroundStyle(.secondary)
             }
         }
     }
@@ -528,7 +492,7 @@ struct ReminderConfigRow: View {
 
     private func chooseLottieFileForDraft() {
         let panel = NSOpenPanel()
-        panel.title = "选择媒体文件"
+        panel.title = String(localized: "display.chooseMediaFile")
         panel.allowedContentTypes = [.json, .gif, .png, .jpeg]
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
@@ -563,32 +527,32 @@ struct AddReminderSheet: View {
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(alignment: .leading, spacing: 16) {
-                Text("添加提醒")
+                Text("display.addReminder")
                     .font(.headline)
 
                 // Title
                 VStack(alignment: .leading) {
-                    Text("标题")
-                    TextField("提醒标题", text: $title)
+                    Text("display.title")
+                    TextField(String(localized: "display.titlePlaceholder"), text: $title)
                         .textFieldStyle(.roundedBorder)
                 }
 
                 // Message
                 VStack(alignment: .leading) {
-                    Text("内容")
-                    TextField("提醒内容", text: $message)
+                    Text("display.message")
+                    TextField(String(localized: "display.messagePlaceholder"), text: $message)
                         .textFieldStyle(.roundedBorder)
                 }
 
                 // Media
                 VStack(alignment: .leading) {
-                    Text("动画")
+                    Text("display.animation")
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
                             Button(action: chooseLottieFile) {
                                 HStack {
                                     Image(systemName: "doc.badge.plus")
-                                    Text(selectedLottieName == nil ? "选择文件" : "更换文件")
+                                    Text(selectedLottieName == nil ? String(localized: "display.chooseFile") : String(localized: "display.changeFile"))
                                 }
                             }
                             if selectedLottieName != nil {
@@ -623,12 +587,12 @@ struct AddReminderSheet: View {
                                 } else if type == .image {
                                     ScaledMediaImage(path: path, size: 64, cornerRadius: 6)
                                 } else {
-                                    Text("无媒体")
+                                    Text("display.noMedia")
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
                             } else {
-                                Text("无媒体")
+                                Text("display.noMedia")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -638,36 +602,36 @@ struct AddReminderSheet: View {
 
                 // Interval
                 HStack(alignment: .center) {
-                    Text("间隔")
+                    Text("display.interval")
                     Spacer()
                     TextField("", value: $intervalMinutes, format: .number)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 60)
                     Stepper("", value: $intervalMinutes, in: 1...120, step: 1)
                         .labelsHidden()
-                    Text("Min")
+                    Text("display.min")
                 }
 
                 // Duration
                 HStack(alignment: .center) {
-                    Text("时长")
+                    Text("display.duration")
                     Spacer()
                     TextField("", value: $durationSeconds, format: .number)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 60)
                     Stepper("", value: $durationSeconds, in: 5...60, step: 1)
                         .labelsHidden()
-                    Text("S")
+                    Text("display.sec")
                 }
 
                 // Buttons
                 HStack {
                     Spacer()
-                    Button("取消") { dismiss() }
+                    Button("common.cancel") { dismiss() }
                         .keyboardShortcut(.cancelAction)
                         .buttonStyle(.bordered)
                         .controlSize(.large)
-                    Button("添加") {
+                    Button("common.add") {
                         let newId = UUID().uuidString
                         let lottieName = lottieFileName.trimmingCharacters(in: .whitespaces).isEmpty
                             ? nil : lottieFileName.trimmingCharacters(in: .whitespaces)
@@ -675,8 +639,8 @@ struct AddReminderSheet: View {
                         let newItem = ReminderItem(
                             id: newId,
                             emoji: "",
-                            title: title.isEmpty ? "自定义提醒" : title,
-                            message: message.isEmpty ? "该休息一下了" : message,
+                            title: title.isEmpty ? String(localized: "display.customReminderDefault") : title,
+                            message: message.isEmpty ? String(localized: "display.defaultReminderMessage") : message,
                             intervalMinutes: intervalMinutes,
                             durationSeconds: durationSeconds,
                             lottieName: lottieName,
@@ -708,7 +672,7 @@ struct AddReminderSheet: View {
 
     private func chooseLottieFile() {
         let panel = NSOpenPanel()
-        panel.title = "选择媒体文件"
+        panel.title = String(localized: "display.chooseMediaFile")
         panel.allowedContentTypes = [.json, .gif, .png, .jpeg]
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
@@ -741,19 +705,19 @@ struct AboutTab: View {
             Image("AboutIcon")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 64, height: 64)
+                .frame(width: 128 , height: 128)
 
             Text("NotchRoller")
                 .font(.title)
                 .fontWeight(.bold)
 
-            Text("Version \(appVersion)")
+            Text("about.version \(appVersion)")
                 .foregroundStyle(.secondary)
 
-            Text("一款基于刘海区域的护眼提醒工具\n定时提醒你休息眼睛、喝水、活动身体")
-                .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 40)
+//            Text("about.description")
+//                .multilineTextAlignment(.center)
+//                .foregroundStyle(.secondary)
+//                .padding(.horizontal, 40)
 
             Spacer()
         }
