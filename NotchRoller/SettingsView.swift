@@ -23,6 +23,7 @@ struct SettingsView: View {
                 .tabItem { Label("tab.about", systemImage: "info.circle") }
         }
         .frame(width: 450, height: 550)
+        .background(.thinMaterial)
         .environment(\.locale, appLanguage.locale)
     }
 }
@@ -698,6 +699,26 @@ struct AddReminderSheet: View {
 // MARK: - About Tab
 
 struct AboutTab: View {
+    
+    private var appVersionAndBuild: String {
+        let version = Bundle.main
+            .infoDictionary?["CFBundleShortVersionString"] as? String ?? "N/A"
+        let build = Bundle.main
+            .infoDictionary?["CFBundleVersion"] as? String ?? "N/A"
+        return "Version \(version) (\(build))"
+    }
+
+    private var copyright: String {
+        let calendar = Calendar.current
+        let year = calendar.component(.year, from: Date())
+        return "© \(year) Frank Lam "
+    }
+
+    private var developerWebsite: URL {
+        URL(string: "https://www.hacomata.buzz/")!
+    }
+    
+    
     var body: some View {
         VStack(spacing: 20) {
             Spacer()
@@ -705,19 +726,30 @@ struct AboutTab: View {
             Image("AboutIcon")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 128 , height: 128)
+                .frame(width: 80)
 
             Text("NotchRoller")
                 .font(.title)
                 .fontWeight(.bold)
 
-            Text("about.version \(appVersion)")
-                .foregroundStyle(.secondary)
+//            Text("about.version \(appVersion)")
+//                .foregroundStyle(.secondary)
 
 //            Text("about.description")
 //                .multilineTextAlignment(.center)
 //                .foregroundStyle(.secondary)
 //                .padding(.horizontal, 40)
+            
+            VStack(spacing: 6) {
+                Text(appVersionAndBuild)
+                Text(copyright)
+            }
+            .font(.callout)
+            Link(
+                "Developer Website",
+                destination: developerWebsite
+            )
+            .foregroundStyle(.indigo)
 
             Spacer()
         }

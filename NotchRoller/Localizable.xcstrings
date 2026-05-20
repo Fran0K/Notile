@@ -57,6 +57,7 @@
       }
     },
     "about.version %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -167,6 +168,9 @@
           }
         }
       }
+    },
+    "Developer Website" : {
+
     },
     "display.addReminder" : {
       "localizations" : {
