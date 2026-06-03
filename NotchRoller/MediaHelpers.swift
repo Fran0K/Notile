@@ -96,9 +96,6 @@ struct ScaledMediaImage: View {
         }
         // Fixed size mode (SettingsView)
         .frame(width: size, height: size)
-        // Adaptive mode (NotchView): don't exceed original image size
-        .frame(maxWidth: size == nil ? (nsImage?.size.width ?? .infinity) : nil,
-               maxHeight: size == nil ? (nsImage?.size.height ?? .infinity) : nil)
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
         .onAppear { nsImage = NSImage(contentsOf: URL(fileURLWithPath: path)) }
         .onChange(of: path) { _, _ in nsImage = NSImage(contentsOf: URL(fileURLWithPath: path)) }

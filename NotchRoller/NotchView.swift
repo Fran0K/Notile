@@ -36,55 +36,43 @@ struct NotchView: View {
     private var visibleHeight: CGFloat { max(0, animHeight + dragOffset) }
 
     var body: some View {
-        GeometryReader { geo in
-            let centerX = geo.size.width / 2
-
-            ZStack(alignment: .top) {
-                if isPopupVisible {
-                    VStack(spacing: 0) {
-                        Spacer(minLength: 0)
-                        contentViewContainer
-                            .frame(width: CGFloat(expandedWidth), height: CGFloat(expandedHeight))
-                        
-                        // 🌟 核心修复点 1：加入 Spacer()
-                        // 当往下拉时，它会吸收掉多余的高度，确保上面的内容死死贴紧顶部
-                        Spacer(minLength: 0)
-                        
-                        pullTab
-                            .frame(width: CGFloat(expandedWidth), height: pullTabHeight)
-                    }
-                    // 🌟 核心修复点 2：高度取最大值
-                    // 正常状态下是 totalExpandedHeight，下拉时动态拉伸
-                    .frame(width: CGFloat(expandedWidth), height: max(totalExpandedHeight, visibleHeight))
-                    
-                    // 3. 动态外框，底部对齐，负责动画时的卷帘裁切
-                    .frame(width: visibleWidth, height: visibleHeight, alignment: .bottom)
-                    // 4. 背景和裁切都放到外框上，这样拉伸时背景也能无缝跟随延伸
-                    .background(
-                        NotchShape(cornerRadius: popupCornerRadius, flareRadius: notchFlareRadius)
-                            .fill(.black)
-                    )
-                    .clipShape(
-                        NotchShape(cornerRadius: popupCornerRadius, flareRadius: notchFlareRadius)
-                    )
-                    .position(x: centerX, y: visibleHeight / 2) // 永远将顶部锚点计算为 0
-                    .gesture(dragGesture)
-                }
-
-                if isPreviewing {
-                    NotchShape(cornerRadius: popupCornerRadius, flareRadius: notchFlareRadius)
-                        .fill(.black.opacity(0.3))
+        ZStack(alignment: .top) {
+            if isPopupVisible {
+                VStack(spacing: 0) {
+                    contentViewContainer
                         .frame(width: CGFloat(expandedWidth), height: CGFloat(expandedHeight))
-                        .overlay {
-                            Text("\(Int(expandedWidth)) × \(Int(expandedHeight))")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundStyle(.white.opacity(0.8))
-                        }
-                        .position(x: centerX, y: CGFloat(expandedHeight) / 2)
-                        .opacity(previewOpacity)
+                        .offset(y: max(0, dragOffset/2))
+
+                    Spacer(minLength: 0)
+
+                    pullTab
+                        .frame(width: CGFloat(expandedWidth), height: pullTabHeight)
                 }
+                .frame(width: CGFloat(expandedWidth), height: max(totalExpandedHeight, visibleHeight))
+                .frame(width: visibleWidth, height: visibleHeight, alignment: .top)
+                .background(
+                    NotchShape(cornerRadius: popupCornerRadius, flareRadius: notchFlareRadius)
+                        .fill(.black)
+                )
+                .clipShape(
+                    NotchShape(cornerRadius: popupCornerRadius, flareRadius: notchFlareRadius)
+                )
+                .gesture(dragGesture)
+            }
+
+            if isPreviewing {
+                NotchShape(cornerRadius: popupCornerRadius, flareRadius: notchFlareRadius)
+                    .fill(.black.opacity(0.3))
+                    .frame(width: CGFloat(expandedWidth), height: CGFloat(expandedHeight))
+                    .overlay {
+                        Text("\(Int(expandedWidth)) × \(Int(expandedHeight))")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.8))
+                    }
+                    .opacity(previewOpacity)
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .onAppear {
             updatePanelFrame()
         }
@@ -138,8 +126,9 @@ struct NotchView: View {
                             ? .playing(.fromProgress(nil, toProgress: 1, loopMode: .loop))
                             : .pause)
                         .animationSpeed(1.0)
-                        .frame(maxWidth: animSize.width, maxHeight: animSize.height)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
                 } else if type == .image {
                     ScaledMediaImage(path: mediaPath, cornerRadius: 8)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -194,12 +183,13 @@ struct NotchView: View {
                     timerManager.cancelCollapseTimer()
                 }
                 dragOffset = value.translation.height
-                
+
                 if dragOffset < 0 {
                     let progress = -dragOffset / totalExpandedHeight
                     contentOpacity = Double(max(0, 1 - progress))
                 } else {
                     contentOpacity = 1
+                    updatePanelFrame(additionalHeight: dragOffset)
                 }
             }
             .onEnded { _ in
@@ -216,12 +206,13 @@ struct NotchView: View {
 
     // MARK: - Animations
     private func expandAnimation() {
+        updatePanelFrame()
         playLottie = true
         animWidth = 0
         animHeight = 0
         contentOpacity = 0
         dragOffset = 0
-        
+
         withAnimation(.spring(response: 0.5, dampingFraction: 0.65)) {
             animWidth = CGFloat(expandedWidth)
             animHeight = totalExpandedHeight
@@ -261,19 +252,21 @@ struct NotchView: View {
             dragOffset = 0
             contentOpacity = 1
         }
+        updatePanelFrame()
     }
 
     // MARK: - Panel Frame
-    private func updatePanelFrame() {
+    private func updatePanelFrame(additionalHeight: CGFloat = 0) {
         guard let screen = NSScreen.screens.first else { return }
         let sf = screen.frame
         let w = CGFloat(expandedWidth)
-        let maxStretchBuffer: CGFloat = 100
-        let h = totalExpandedHeight + maxStretchBuffer
-        
+        let buffer: CGFloat = max(100, additionalHeight)
+        let h = totalExpandedHeight + buffer
+
         let ox = sf.midX - w / 2
         let oy = sf.maxY - h
-        
+
         panelProxy.popupFrame = NSRect(x: ox, y: oy, width: w, height: h)
+        panelProxy.applyFrame()
     }
 }

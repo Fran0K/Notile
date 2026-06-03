@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7D45F8782FB8A637009E43D5 /* readme.md in Resources */ = {isa = PBXBuildFile; fileRef = 7D45F8772FB8A627009E43D5 /* readme.md */; };
 		90BBBB187C97185AEABCA537 /* Pods_notchEye.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB3FF4611172715290C44334 /* Pods_notchEye.framework */; };
 /* End PBXBuildFile section */
 
@@ -29,7 +28,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		7D45F8772FB8A627009E43D5 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = readme.md; sourceTree = "<group>"; };
 		7D8AA41A2FAB268A0069C86C /* NotchRoller.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NotchRoller.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D8AA4272FAB268A0069C86C /* NotchRollerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NotchRollerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D8AA4312FAB268A0069C86C /* NotchRollerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NotchRollerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -102,7 +100,6 @@
 		7D8AA4112FAB268A0069C86C = {
 			isa = PBXGroup;
 			children = (
-				7D45F8772FB8A627009E43D5 /* readme.md */,
 				7D8AA41C2FAB268A0069C86C /* NotchRoller */,
 				7D8AA42A2FAB268A0069C86C /* NotchRollerTests */,
 				7D8AA4342FAB268A0069C86C /* NotchRollerUITests */,
@@ -238,7 +235,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7D45F8782FB8A637009E43D5 /* readme.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

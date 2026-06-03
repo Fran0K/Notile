@@ -37,12 +37,13 @@ final class NotchPanel: NSPanel {
     }
 }
 
-/// Custom content view that only accepts events within the popup frame.
+/// Custom content view that only accepts events when panel is interactive.
+/// Panel is popup-sized, so all events within its bounds are valid.
 class PopupHitView: NSView {
     weak var panel: NotchPanel?
 
     override func hitTest(_ point: NSPoint) -> NSView? {
-        guard let panel, panel.isInteractive, panel.popupFrame.contains(point) else { return nil }
+        guard let panel, panel.isInteractive else { return nil }
         return super.hitTest(point)
     }
 }

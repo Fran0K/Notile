@@ -699,7 +699,8 @@ struct AddReminderSheet: View {
 // MARK: - About Tab
 
 struct AboutTab: View {
-    
+    @StateObject private var updateChecker = UpdateChecker()
+
     private var appVersionAndBuild: String {
         let version = Bundle.main
             .infoDictionary?["CFBundleShortVersionString"] as? String ?? "N/A"
@@ -750,6 +751,47 @@ struct AboutTab: View {
                 destination: developerWebsite
             )
             .foregroundStyle(.indigo)
+
+            // Check for updates
+            HStack {
+                Button("settings.general.checkForUpdates") {
+                    updateChecker.checkForUpdates()
+                }
+                .disabled(updateChecker.isChecking)
+
+                if updateChecker.isChecking {
+                    ProgressView()
+                        .controlSize(.small)
+                }
+            }
+            .alert(
+                updateChecker.updateAvailable
+                    ? String(localized: "settings.general.updateAvailable")
+                    : String(localized: "settings.general.upToDate"),
+                isPresented: .init(
+                    get: { !updateChecker.isChecking && updateChecker.latestVersion != nil },
+                    set: { if !$0 { updateChecker.latestVersion = nil } }
+                )
+            ) {
+                if updateChecker.updateAvailable,
+                   let url = URL(string: updateChecker.latestReleaseUrl ?? "") {
+                    Link("settings.general.download", destination: url)
+                        .buttonStyle(.borderedProminent)
+                }
+                Button("common.ok") { updateChecker.latestVersion = nil }
+            } message: {
+                if updateChecker.updateAvailable {
+                    Text("settings.general.newVersion \(updateChecker.latestVersion ?? "")")
+                } else {
+                    Text("settings.general.currentVersion \(updateChecker.currentVersion)")
+                }
+            }
+
+            if let error = updateChecker.errorMessage {
+                Text(error)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
 
             Spacer()
         }
