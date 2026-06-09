@@ -41,9 +41,23 @@ struct GeneralTab: View {
     @AppStorage("activeEndHour") private var activeEndHour: Double = 22
 
     @AppStorage("appLanguage") private var appLanguage: AppLanguage = .system
+    @AppStorage("selectedDisplayID") private var selectedDisplayID: Int = 0
 
     private var screenSize: CGSize {
-        NSScreen.main?.frame.size ?? CGSize(width: 1920, height: 1080)
+        ScreenResolver.resolveTargetScreen()?.frame.size
+            ?? NSScreen.screens.first?.frame.size
+            ?? CGSize(width: 1920, height: 1080)
+    }
+
+    private struct ScreenEntry: Identifiable {
+        let id: Int
+        let label: String
+    }
+
+    private var availableScreens: [ScreenEntry] {
+        NSScreen.screens.map { screen in
+            ScreenEntry(id: ScreenResolver.screenID(screen), label: ScreenResolver.screenLabel(screen))
+        }
     }
 
     var body: some View {
@@ -53,6 +67,85 @@ struct GeneralTab: View {
                 Picker("settings.general.language", selection: $appLanguage) {
                     ForEach(AppLanguage.allCases, id: \.self) { lang in
                         Text(lang.displayName).tag(lang)
+                    }
+                }
+            }
+
+//            Section("settings.general.monitor") {
+//                Picker("settings.general.monitor", selection: $selectedDisplayID) {
+//                    ForEach(availableScreens, id: \.id) { entry in
+//                        Text(entry.label).tag(entry.id)
+//                    }
+//                }
+//                .onChange(of: selectedDisplayID) { _, _ in
+//                    if let appDelegate = AppDelegate.shared {
+//                        if !appDelegate.timerManager.isExpanded {
+//                            appDelegate.panelProxy.collapsePanel()
+//                        }
+//                    }
+//                }
+//            }
+            
+            Section("settings.general.monitor") {
+                HStack(spacing: 16) {
+                    ForEach(availableScreens, id: \.id) { entry in
+                        let isSelected = selectedDisplayID == entry.id
+                        
+                        // 判断是否为内置视网膜显示器（支持包含 "Built-in" 或 "Retina" 等关键字的模糊匹配）
+                        let isBuiltIn = entry.label.localizedCaseInsensitiveContains("Built-in")
+
+                        Button {
+                            selectedDisplayID = entry.id
+                        } label: {
+                            VStack(spacing: 12) {
+                                // 1. 显示器 SVG 图片（在 Assets 中对应的名字，不带 .svg 后缀）
+                                // 提示：如果想使用系统自带的免资源图标，可以用 SF Symbols:
+                                // isBuiltIn ? "laptopcomputer" : "desktopcomputer"
+                                let imageName = isBuiltIn ? "images/macbook" : "images/monitor"
+                                Image(imageName)
+                                    .renderingMode(.template)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 44, height: 44)
+                                    .foregroundStyle(isSelected ? Color.accentColor : Color(nsColor: .textColor))
+//                                    .foregroundStyle(isSelected ? .primary : .secondary)
+
+                                // 2. 显示器名称
+                                Text(entry.label)
+                                    .font(.subheadline)
+                                    .lineLimit(2)
+                                    .multilineTextAlignment(.center)
+                                    .frame(height: 32) // 固定高度防止文字换行撑开卡片
+                                
+                                // 3. 圆形单选按钮
+                                Image(systemName: isSelected ? "largecircle.fill.circle" : "circle")
+                                    .font(.system(size: 16))
+                                    .foregroundStyle(isSelected ? Color.accentColor : Color.secondary)
+                            }
+                            .padding(16)
+                            .frame(width: 140, height: 150)
+                            // 背景色适应深浅色模式
+                            .background(Color(nsColor: .controlBackgroundColor))
+                            .cornerRadius(8)
+                            // 选中状态加上蓝色边框高亮，未选中则是普通灰色边框
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(
+                                        isSelected ? Color.accentColor : Color(nsColor: .separatorColor),
+                                        lineWidth: isSelected ? 2 : 1
+                                    )
+                            )
+                        }
+                        .buttonStyle(.plain) // 去除 macOS 默认 Button 的高亮变灰效果
+                    }
+                }
+                .padding(.vertical, 8)
+                // 监听选择变化
+                .onChange(of: selectedDisplayID) { _, _ in
+                    if let appDelegate = AppDelegate.shared {
+                        if !appDelegate.timerManager.isExpanded {
+                            appDelegate.panelProxy.collapsePanel()
+                        }
                     }
                 }
             }
@@ -359,7 +452,25 @@ struct ReminderConfigRow: View {
             }
             HStack(alignment: .center) {
                 Text("display.message").font(.caption).foregroundStyle(.secondary).frame(width: 70, alignment: .leading)
-                TextField("", text: $draftMessage).textFieldStyle(.roundedBorder)
+//                TextField("", text: $draftMessage).textFieldStyle(.roundedBorder)
+                TextEditor(text: $draftMessage)
+                    .frame(height: 60)
+                    .font(.system(size: 13))
+                    .scrollContentBackground(.hidden)
+                    .padding(6)
+                    .background(
+                        RoundedRectangle(cornerRadius: 4)
+                            .strokeBorder(Color(nsColor: .separatorColor))
+                    )
+                    .overlay(alignment: .topLeading) {
+                        if draftMessage.isEmpty {
+                            Text("display.messagePlaceholder")
+                                .foregroundStyle(.tertiary)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 6)
+                                .allowsHitTesting(false)
+                        }
+                    }
             }
             // Lottie
             HStack(alignment: .top) {
@@ -534,15 +645,34 @@ struct AddReminderSheet: View {
                 // Title
                 VStack(alignment: .leading) {
                     Text("display.title")
-                    TextField(String(localized: "display.titlePlaceholder"), text: $title)
+                    TextField(String(localized: "display.titlePlaceholder"),
+                              text: $title,
+                              axis: .vertical )
                         .textFieldStyle(.roundedBorder)
+                    
                 }
 
                 // Message
                 VStack(alignment: .leading) {
                     Text("display.message")
-                    TextField(String(localized: "display.messagePlaceholder"), text: $message)
-                        .textFieldStyle(.roundedBorder)
+                    TextEditor(text: $message)
+                        .font(.system(size: 13))
+                        .frame(height: 60)
+                        .scrollContentBackground(.hidden)
+                        .padding(4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 4)
+                                .strokeBorder(Color(nsColor: .separatorColor))
+                        )
+                        .overlay(alignment: .topLeading) {
+                            if message.isEmpty {
+                                Text("display.messagePlaceholder")
+                                    .foregroundStyle(.tertiary)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 6)
+                                    .allowsHitTesting(false)
+                            }
+                        }
                 }
 
                 // Media
