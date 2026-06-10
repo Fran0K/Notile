@@ -529,16 +529,16 @@ struct ReminderConfigRow: View {
     @ViewBuilder
     private func iconView(size: CGFloat) -> some View {
         let name = (rowState == .editing ? draftLottieName : (resolvedLottieName ?? ""))
-        if let path = resolveMediaPath(for: name) {
-            let type = MediaType.detect(for: path)
-            if type == .lottie, let animation = LottieAnimation.filepath(path) {
+        if let url = resolveMediaPath(for: name) {
+            let type = MediaType.detect(for: url.path)
+            if type == .lottie, let animation = LottieAnimation.filepath(url.path) {
                 LottieView(animation: animation)
                     .configure { $0.contentMode = .scaleAspectFit }
                     .playbackMode(.playing(.fromProgress(nil, toProgress: 1, loopMode: .loop)))
                     .animationSpeed(1.0)
                     .frame(width: size, height: size)
             } else if type == .image {
-                ScaledMediaImage(path: path, size: size, cornerRadius: 4)
+                ScaledMediaImage(url: url, size: size, cornerRadius: 4)
             } else {
                 bellIcon(size: size)
             }
@@ -559,16 +559,16 @@ struct ReminderConfigRow: View {
             RoundedRectangle(cornerRadius: 8)
                 .strokeBorder(Color(nsColor: .separatorColor), lineWidth: 1)
                 .frame(width: 80, height: 80)
-            if let name = lottieName, let path = resolveMediaPath(for: name) {
-                let type = MediaType.detect(for: path)
-                if type == .lottie, let animation = LottieAnimation.filepath(path) {
+            if let name = lottieName, let url = resolveMediaPath(for: name) {
+                let type = MediaType.detect(for: url.path)
+                if type == .lottie, let animation = LottieAnimation.filepath(url.path) {
                     LottieView(animation: animation)
                         .configure { $0.contentMode = .scaleAspectFit }
                         .playbackMode(.playing(.fromProgress(nil, toProgress: 1, loopMode: .loop)))
                         .animationSpeed(1.0)
                         .frame(width: 64, height: 64)
                 } else if type == .image {
-                    ScaledMediaImage(path: path, size: 64, cornerRadius: 6)
+                    ScaledMediaImage(url: url, size: 64, cornerRadius: 6)
                 } else {
                     Text("display.noMedia").font(.caption).foregroundStyle(.secondary)
                 }
@@ -705,9 +705,9 @@ struct AddReminderSheet: View {
                             RoundedRectangle(cornerRadius: 8)
                                 .strokeBorder(Color(nsColor: .separatorColor), lineWidth: 1)
                                 .frame(width: 80, height: 80)
-                            if let name = selectedLottieName, let path = resolveMediaPath(for: name) {
-                                let type = MediaType.detect(for: path)
-                                if type == .lottie, let animation = LottieAnimation.filepath(path) {
+                            if let name = selectedLottieName, let url = resolveMediaPath(for: name) {
+                                let type = MediaType.detect(for: url.path)
+                                if type == .lottie, let animation = LottieAnimation.filepath(url.path) {
                                     LottieView(animation: animation)
                                         .configure { animatable in
                                             animatable.contentMode = .scaleAspectFit
@@ -716,7 +716,7 @@ struct AddReminderSheet: View {
                                         .animationSpeed(1.0)
                                         .frame(width: 64, height: 64)
                                 } else if type == .image {
-                                    ScaledMediaImage(path: path, size: 64, cornerRadius: 6)
+                                    ScaledMediaImage(url: url, size: 64, cornerRadius: 6)
                                 } else {
                                     Text("display.noMedia")
                                         .font(.caption)
@@ -830,6 +830,8 @@ struct AddReminderSheet: View {
 
 struct AboutTab: View {
     @StateObject private var updateChecker = UpdateChecker()
+    @State private var showTerms = false
+    @State private var showPrivacy = false
 
     private var appVersionAndBuild: String {
         let version = Bundle.main
@@ -859,7 +861,7 @@ struct AboutTab: View {
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 80)
 
-            Text("NotchRoller")
+            Text("Notile")
                 .font(.title)
                 .fontWeight(.bold)
 
@@ -924,11 +926,122 @@ struct AboutTab: View {
             }
 
             Spacer()
+
+            VStack(spacing: 4) {
+                Text("Animation Credits")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                VStack(spacing: 2) {
+                    Link("Eye Blink — Colin Phillipson", destination: URL(string: "https://lottiefiles.com/fevcynzpk33383vp")!)
+                    Link("Drink Water — Suresh", destination: URL(string: "https://lottiefiles.com/suresh_uix")!)
+                    Link("Walk — SM Rony", destination: URL(string: "https://lottiefiles.com/smrony")!)
+                }
+                .font(.caption2)
+            }
+
+            HStack(spacing: 16) {
+                Button("Terms of Service") { showTerms = true }
+                    .foregroundStyle(.secondary)
+                Button("Privacy Policy") { showPrivacy = true }
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.vertical)
+            .font(.caption)
+            .buttonStyle(.plain)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .sheet(isPresented: $showTerms) {
+            LegalTextView(title: "Terms of Service", text: LegalTexts.termsOfService)
+        }
+        .sheet(isPresented: $showPrivacy) {
+            LegalTextView(title: "Privacy Policy", text: LegalTexts.privacyPolicy)
+        }
     }
 
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
     }
+}
+
+// MARK: - Legal Text View
+
+private struct LegalTextView: View {
+    let title: String
+    let text: String
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Text(title)
+                    .font(.headline)
+                Spacer()
+                Button { dismiss() } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding()
+
+            Divider()
+
+            ScrollView {
+                Text(text)
+                    .font(.body)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+            }
+        }
+        .frame(width: 420, height: 480)
+    }
+}
+
+// MARK: - Legal Texts
+
+private enum LegalTexts {
+    static let termsOfService = """
+Last updated: June 2026
+
+By using Notile ("the App"), you agree to the following terms.
+
+1. Use License
+You are granted a non-exclusive, non-transferable license to use the App for personal, non-commercial purposes.
+
+2. Acceptable Use
+You agree not to reverse engineer, modify, or distribute the App. You agree to use the App in compliance with all applicable laws.
+
+3. Disclaimer of Warranties
+The App is provided "as is" without warranty of any kind. We do not guarantee that the App will be error-free or uninterrupted.
+
+4. Limitation of Liability
+In no event shall the developer be liable for any damages arising out of the use or inability to use the App.
+
+5. Changes to Terms
+We reserve the right to update these terms at any time. Continued use of the App constitutes acceptance of the updated terms.
+"""
+
+static let privacyPolicy = """
+Last updated: June 2026
+
+Notile ("the App") respects your privacy. This policy explains what data we handle.
+
+1. Data Collection
+The App does not collect, transmit, or share any personal data. All data is stored locally on your device.
+
+2. Local Storage
+Settings and preferences are stored in macOS UserDefaults. Media files are stored in the Application Support directory. No data is sent to external servers.
+
+3. Network Access
+The App may check for updates by querying the GitHub Releases API. This request contains no personal information.
+
+4. Third-Party Services
+The App does not integrate any third-party analytics, advertising, or tracking services.
+
+5. Changes to This Policy
+We may update this policy from time to time. Any changes will be reflected in the App.
+
+6. Contact
+If you have questions about this policy, please visit https://www.hacomata.buzz/
+"""
 }

@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+
+//这里才算是程序入口
 @main
 struct NotchRollerApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
