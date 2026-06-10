@@ -85,6 +85,9 @@
         }
       }
     },
+    "Animation Credits" : {
+
+    },
     "common.add" : {
       "localizations" : {
         "en" : {
@@ -819,6 +822,12 @@
         }
       }
     },
+    "Drink Water — Suresh" : {
+
+    },
+    "Eye Blink — Colin Phillipson" : {
+
+    },
     "menuBar.quit" : {
       "localizations" : {
         "en" : {
@@ -876,6 +885,12 @@
       }
     },
     "NotchRoller" : {
+
+    },
+    "Notile" : {
+
+    },
+    "Privacy Policy" : {
 
     },
     "settings.general.activeHours" : {
@@ -1277,34 +1292,6 @@
         }
       }
     },
-    "settings.general.monitor" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Monitor"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Moniteur"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "モニター"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "显示器"
-          }
-        }
-      }
-    },
     "settings.general.meetingDesc" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1330,6 +1317,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "当检测到日历中的会议时，暂停提醒"
+          }
+        }
+      }
+    },
+    "settings.general.monitor" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monitor"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moniteur"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "モニター"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示器"
           }
         }
       }
@@ -1818,6 +1833,12 @@
           }
         }
       }
+    },
+    "Terms of Service" : {
+
+    },
+    "Walk — SM Rony" : {
+
     }
   },
   "version" : "1.0"

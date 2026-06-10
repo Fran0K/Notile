@@ -114,9 +114,9 @@ struct NotchView: View {
     private func contentView(for item: ReminderItem) -> some View {
         VStack(spacing: 6) {
             if let mediaName = item.resolvedLottieName,
-               let mediaPath = resolveMediaPath(for: mediaName) {
-                let type = MediaType.detect(for: mediaPath)
-                if type == .lottie, let animation = LottieAnimation.filepath(mediaPath) {
+               let mediaURL = resolveMediaPath(for: mediaName) {
+                let type = MediaType.detect(for: mediaURL.path)
+                if type == .lottie, let animation = LottieAnimation.filepath(mediaURL.path) {
                     let animSize = animation.size
                     LottieView(animation: animation)
                         .configure { animatable in
@@ -130,7 +130,7 @@ struct NotchView: View {
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
                 } else if type == .image {
-                    ScaledMediaImage(path: mediaPath, cornerRadius: 8)
+                    ScaledMediaImage(url: mediaURL, cornerRadius: 8)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)

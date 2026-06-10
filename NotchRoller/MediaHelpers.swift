@@ -20,20 +20,20 @@ enum MediaType {
 
 // MARK: - Media Path Resolution
 
-/// Resolve full file path for a media name.
+/// Resolve full file URL for a media name.
 /// Handles backward compat for old Lottie entries stored without ".json" extension.
-func resolveMediaPath(for name: String) -> String? {
+func resolveMediaPath(for name: String) -> URL? {
     let trimmed = name.trimmingCharacters(in: .whitespaces)
     guard !trimmed.isEmpty else { return nil }
 
     // Bundle: exact name (works when name includes extension)
-    if let path = Bundle.main.path(forResource: trimmed, ofType: nil) {
-        return path
+    if let url = Bundle.main.url(forResource: trimmed, withExtension: nil) {
+        return url
     }
     // Bundle: try appending .json (backward compat for extensionless names like "eye_blink")
     if !trimmed.contains(".") {
-        if let path = Bundle.main.path(forResource: trimmed, ofType: "json") {
-            return path
+        if let url = Bundle.main.url(forResource: trimmed, withExtension: "json") {
+            return url
         }
     }
 
@@ -41,14 +41,14 @@ func resolveMediaPath(for name: String) -> String? {
     let base = appSupport.appendingPathComponent("notech/lottie")
 
     // App Support: exact name
-    let exact = base.appendingPathComponent(trimmed).path
-    if FileManager.default.fileExists(atPath: exact) {
+    let exact = base.appendingPathComponent(trimmed)
+    if FileManager.default.fileExists(atPath: exact.path) {
         return exact
     }
     // App Support: try .json (backward compat)
     if !trimmed.contains(".") {
-        let withJson = base.appendingPathComponent(trimmed + ".json").path
-        if FileManager.default.fileExists(atPath: withJson) {
+        let withJson = base.appendingPathComponent(trimmed + ".json")
+        if FileManager.default.fileExists(atPath: withJson.path) {
             return withJson
         }
     }
@@ -60,9 +60,9 @@ func resolveMediaPath(for name: String) -> String? {
 
 /// Resolve LottieAnimation from a media name (only if type is Lottie).
 func resolveLottieFromMedia(name: String) -> LottieAnimation? {
-    guard let path = resolveMediaPath(for: name) else { return nil }
-    guard MediaType.detect(for: path) == .lottie else { return nil }
-    return LottieAnimation.filepath(path)
+    guard let url = resolveMediaPath(for: name) else { return nil }
+    guard MediaType.detect(for: url.path) == .lottie else { return nil }
+    return LottieAnimation.filepath(url.path)
 }
 
 // MARK: - Scaled Media Image View
@@ -70,14 +70,14 @@ func resolveLottieFromMedia(name: String) -> LottieAnimation? {
 /// Displays images with proper aspect ratio using SwiftUI Image for static images
 /// and NSViewRepresentable only for animated GIFs.
 struct ScaledMediaImage: View {
-    let path: String
+    let url: URL
     var size: CGFloat? = nil
     var cornerRadius: CGFloat = 0
 
     @State private var nsImage: NSImage?
 
     private var isGif: Bool {
-        (path as NSString).pathExtension.lowercased() == "gif"
+        url.pathExtension.lowercased() == "gif"
     }
 
     var body: some View {
@@ -97,8 +97,8 @@ struct ScaledMediaImage: View {
         // Fixed size mode (SettingsView)
         .frame(width: size, height: size)
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
-        .onAppear { nsImage = NSImage(contentsOf: URL(fileURLWithPath: path)) }
-        .onChange(of: path) { _, _ in nsImage = NSImage(contentsOf: URL(fileURLWithPath: path)) }
+        .onAppear { nsImage = NSImage(contentsOf: url) }
+        .onChange(of: url) { _, _ in nsImage = NSImage(contentsOf: url) }
     }
 }
 
@@ -156,15 +156,16 @@ func copyMediaWithThumbnail(
 
     // Static image: try CGImageSource for efficient thumbnail
     if let cgImage = createThumbnailCGImage(url: sourceURL, maxDimension: maxDimension) {
-        let nsImage = NSImage(cgImage: cgImage, size: NSSize(width: cgImage.width, height: cgImage.height))
-        if let tiffData = nsImage.tiffRepresentation,
-           let bitmapRep = NSBitmapImageRep(data: tiffData),
-           let pngData = bitmapRep.representation(using: .png, properties: [:]) {
-            let stem = (destName as NSString).deletingPathExtension
-            let finalName = stem + ".png"
-            let destURL = destDirectory.appendingPathComponent(finalName)
-            try? fm.removeItem(at: destURL)
-            try pngData.write(to: destURL)
+        let stem = (destName as NSString).deletingPathExtension
+        let finalName = stem + ".png"
+        let destURL = destDirectory.appendingPathComponent(finalName)
+        try? fm.removeItem(at: destURL)
+
+        guard let dest = CGImageDestinationCreateWithURL(destURL as CFURL, "public.png" as CFString, 1, nil) else {
+            return try copyAsIs(sourceURL: sourceURL, destDirectory: destDirectory, destName: destName)
+        }
+        CGImageDestinationAddImage(dest, cgImage, nil)
+        if CGImageDestinationFinalize(dest) {
             return finalName
         }
     }

@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+/// NSPanel 一种窗口类型是辅助窗口/浮动窗口/工具窗口
+
 final class NotchPanel: NSPanel {
 
     /// Screen-space rect of the popup for hit-testing.
@@ -14,10 +16,13 @@ final class NotchPanel: NSPanel {
 
     /// When false (default), all mouse events pass through.
     var isInteractive: Bool = false
-
+    
+    /// init panel
     init(contentRect: NSRect) {
         super.init(
             contentRect: contentRect,
+            //.nonactivatingPanel保持原窗口的焦点
+            // .borderless去掉边框
             styleMask: [.nonactivatingPanel, .borderless, .fullSizeContentView],
             backing: .buffered,
             defer: false
