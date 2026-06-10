@@ -134,15 +134,12 @@ struct NotchView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
-                } else {
-                    fallbackText(item)
                 }
-            } else {
-                fallbackText(item)
             }
             Text(item.resolvedMessage)
                 .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(.white)
+                .padding(.horizontal, 16)
         }
         .padding(.vertical)
         .padding(.top)
@@ -257,7 +254,7 @@ struct NotchView: View {
 
     // MARK: - Panel Frame
     private func updatePanelFrame(additionalHeight: CGFloat = 0) {
-        guard let screen = NSScreen.screens.first else { return }
+        guard let screen = ScreenResolver.resolveTargetScreen() else { return }
         let sf = screen.frame
         let w = CGFloat(expandedWidth)
         let buffer: CGFloat = max(100, additionalHeight)

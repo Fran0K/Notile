@@ -11,7 +11,7 @@ import SwiftUI
 final class AppDelegate: NSObject, NSApplicationDelegate {
 
     static weak var shared: AppDelegate?
-
+    //创建核心对象
     let timerManager = TimerManager()
     let panelProxy = PanelProxy()
     var panel: NotchPanel?
@@ -20,12 +20,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         super.init()
         Self.shared = self
     }
-
+    
+    //相当于main函数
     func applicationDidFinishLaunching(_ notification: Notification) {
+        //不现实application图标
         NSApp.setActivationPolicy(.accessory)
 
-        let screen = NSScreen.screens.first?.frame ?? NSRect(x: 0, y: 0, width: 1920, height: 1080)
+        let screen = ScreenResolver.resolveTargetScreen()?.frame ?? NSRect(x: 0, y: 0, width: 1920, height: 1080)
+//        let targetScreen = NSScreen.main ?? NSScreen.screens.first
+        // 创建一个 0×0 的窗口
         let zeroFrame = NSRect(x: screen.midX, y: screen.maxY, width: 0, height: 0)
+        // 创建 NotchPanel
         let panel = NotchPanel(contentRect: zeroFrame)
         let containerView = PopupHitView(frame: zeroFrame)
         containerView.panel = panel
@@ -80,7 +85,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             queue: .main
         ) { [weak self] _ in
             Task { @MainActor in
-                self?.panelProxy.applyFrame()
+                guard let self else { return }
+                self.panelProxy.applyFrame()
+                if !self.timerManager.isExpanded {
+                    self.panelProxy.collapsePanel()
+                }
             }
         }
     }

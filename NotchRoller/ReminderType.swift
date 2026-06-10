@@ -62,17 +62,17 @@ struct ReminderItem: Codable, Identifiable, Equatable {
         ReminderItem(
             id: "eyeRest", emoji: "", title: "眼睛休息",
             message: "望向窗外休息一下", intervalMinutes: 45,
-            durationSeconds: 20, lottieName: "eye_blink", isBuiltIn: true
+            durationSeconds: 20, lottieName: "EyeBlink.json", isBuiltIn: true
         ),
         ReminderItem(
             id: "drinkWater", emoji: "", title: "喝水",
             message: "该喝水了", intervalMinutes: 30,
-            durationSeconds: 15, lottieName: "drink_water", isBuiltIn: true
+            durationSeconds: 15, lottieName: "DrinkWater.json", isBuiltIn: true
         ),
         ReminderItem(
             id: "walkAround", emoji: "", title: "往外走走",
             message: "站起来活动一下", intervalMinutes: 60,
-            durationSeconds: 20, lottieName: "walk_around", isBuiltIn: true
+            durationSeconds: 20, lottieName: "walk.json", isBuiltIn: true
         ),
     ]
 }
