@@ -1,13 +1,6 @@
 <div align="center">
 
-[**中文**](README.zh-CN.md)
-<br>
-
-</div>
-
-<div align="center">
-
-<img src="NotchRoller/Assets.xcassets/AppIcon.appiconset/icon-128.png" width="128" height="128" alt="Notile Icon">
+<img src="NotchRoller/Assets.xcassets/AppIcon.appiconset/icon-512.png" width="128" height="128" alt="Notile Icon">
 
 # Notile
 
@@ -17,7 +10,7 @@ A macOS menu bar reminder app that rolls out from the notch with a smooth blind-
 
 <br>
 
-[Download](https://github.com/Fran0k/Notile/releases) · [Report Issue](https://github.com/Fran0k/Notile/issues)
+[中文](README.zh-CN.md) · [Download](https://github.com/Fran0k/Notile/releases) · [Report Issue](https://github.com/Fran0k/Notile/issues)
 
 <br>
 
@@ -29,8 +22,8 @@ A macOS menu bar reminder app that rolls out from the notch with a smooth blind-
 
 Notile pops up reminders from your Mac's notch area with a smooth roll-down animation, helping you remember to:
 
-- Rest your eyes
-- Stand up and stretch
+- Take a eyes break
+- Stand up and stretch your legs
 - Drink some water
 - ...and anything else you want to be reminded of regularly
 
