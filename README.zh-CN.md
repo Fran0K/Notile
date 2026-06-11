@@ -1,14 +1,6 @@
 <div align="center">
 
-[**English**](README.md)
-
-<br>
-
-</div>
-
-<div align="center">
-
-<img src="NotchRoller/Assets.xcassets/AppIcon.appiconset/icon-128.png" width="128" height="128" alt="Notile Icon">
+<img src="NotchRoller/Assets.xcassets/AppIcon.appiconset/icon-512.png" width="128" height="128" alt="Notile Icon">
 
 # Notile
 
@@ -18,7 +10,7 @@ macOS 菜单栏定时提醒应用——以卷帘窗动画从刘海区域优雅�
 
 <br>
 
-[下载最新版](https://github.com/Fran0k/Notile/releases) · [反馈问题](https://github.com/Fran0k/Notile/issues)
+[**English**](README.md) · [下载最新版](https://github.com/Fran0k/Notile/releases) · [反馈问题](https://github.com/Fran0k/Notile/issues)
 
 <br>
 
