@@ -42,6 +42,7 @@ struct GeneralTab: View {
 
     @AppStorage("appLanguage") private var appLanguage: AppLanguage = .system
     @AppStorage("selectedDisplayID") private var selectedDisplayID: Int = 0
+    @AppStorage("loggingEnabled") private var loggingEnabled: Bool = true
 
     private var screenSize: CGSize {
         ScreenResolver.resolveTargetScreen()?.frame.size
@@ -141,7 +142,7 @@ struct GeneralTab: View {
                 }
                 .padding(.vertical, 8)
                 // 监听选择变化
-                .onChange(of: selectedDisplayID) { _, _ in
+                .onChange(of: selectedDisplayID) { _ in
                     if let appDelegate = AppDelegate.shared {
                         if !appDelegate.timerManager.isExpanded {
                             appDelegate.panelProxy.collapsePanel()
@@ -152,14 +153,16 @@ struct GeneralTab: View {
 
             Section("settings.general.launch") {
                 Toggle("settings.general.startAtLogin", isOn: $launchAtLogin)
-                    .onChange(of: launchAtLogin) { _, newValue in
+                    .onChange(of: launchAtLogin) { newValue in
                         do {
                             if newValue {
                                 try SMAppService.mainApp.register()
                             } else {
                                 try SMAppService.mainApp.unregister()
                             }
+                            OperationLogger.shared.log(.lifecycle, "Launch at login \(newValue ? "enabled" : "disabled")")
                         } catch {
+                            OperationLogger.shared.log(.lifecycle, "Launch at login toggle failed: \(error.localizedDescription)")
                             launchAtLogin = false
                         }
                     }
@@ -244,6 +247,33 @@ struct GeneralTab: View {
                 }
             }
 
+            Section {
+                Toggle("settings.general.enableLogging", isOn: $loggingEnabled)
+
+                if loggingEnabled {
+                            HStack{
+                                Text("settings.general.exportLog")
+                                Spacer()
+                                Button {
+                                    OperationLogger.shared.exportLog()
+                                } label: {
+                                    HStack {
+                                        Text("settings.general.exportHint")
+//                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                                .buttonStyle(.bordered)
+                                .disabled(!FileManager.default.fileExists(
+                                    atPath: OperationLogger.shared.fileURL.path
+                                ))
+                            }
+                        }
+                    }
+                    header: {
+                Text("settings.general.log")
+            }
+
         }
         .formStyle(.grouped)
         .padding()
@@ -260,8 +290,16 @@ struct GeneralTab: View {
 // MARK: - Display Tab
 
 struct DisplayTab: View {
-    let store = AppDelegate.shared?.timerManager.store ?? ReminderStore()
+    @ObservedObject private var store: ReminderStore
     @State private var showingAddSheet = false
+
+    init() {
+        // AppDelegate may be nil at view-creation time; fall back to an empty store.
+        // Once timerManager is built, the real store reference is stable across rebuilds.
+        self._store = ObservedObject(
+            wrappedValue: AppDelegate.shared?.timerManager.store ?? ReminderStore()
+        )
+    }
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
@@ -595,6 +633,7 @@ struct ReminderConfigRow: View {
         intervalMinutes = draftInterval
         durationSeconds = draftDuration
         customLottieName = draftLottieName
+        OperationLogger.shared.log(.crud, "Edited reminder \"\(customTitle)\" (id=\(item.id))")
         withAnimation(.easeInOut(duration: 0.2)) { rowState = .expanded }
     }
 

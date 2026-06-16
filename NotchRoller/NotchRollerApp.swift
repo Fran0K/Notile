@@ -15,9 +15,16 @@ struct NotchRollerApp: App {
     @AppStorage("appLanguage") private var appLanguage: AppLanguage = .system
 
     var body: some Scene {
-        MenuBarExtra("NotchRoller", image: "MenuIcon") {
-            SettingsLink {
-                Text("menuBar.settings")
+        MenuBarExtra("Notile", image: "MenuIcon") {
+            if #available(macOS 14.0, *) {
+                SettingsLink {
+                    Text("menuBar.settings")
+                }
+            } else {
+                Button("menuBar.settings") {
+                    // macOS 13 fallback: SettingsLink is unavailable.
+                    NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
+                }
             }
             Divider()
             Button("menuBar.quit") {

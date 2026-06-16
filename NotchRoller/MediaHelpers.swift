@@ -98,7 +98,7 @@ struct ScaledMediaImage: View {
         .frame(width: size, height: size)
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
         .onAppear { nsImage = NSImage(contentsOf: url) }
-        .onChange(of: url) { _, _ in nsImage = NSImage(contentsOf: url) }
+        .onChange(of: url) { _ in nsImage = NSImage(contentsOf: url) }
     }
 }
 

@@ -20,11 +20,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         super.init()
         Self.shared = self
     }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        OperationLogger.shared.log(.lifecycle, "App terminating")
+    }
     
     //相当于main函数
     func applicationDidFinishLaunching(_ notification: Notification) {
         //不现实application图标
         NSApp.setActivationPolicy(.accessory)
+        OperationLogger.shared.log(.lifecycle, "App launched")
 
         let screen = ScreenResolver.resolveTargetScreen()?.frame ?? NSRect(x: 0, y: 0, width: 1920, height: 1080)
 //        let targetScreen = NSScreen.main ?? NSScreen.screens.first

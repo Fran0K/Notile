@@ -3,7 +3,7 @@ import Lottie
 
 // MARK: - 主视图
 struct NotchView: View {
-    @Bindable var timerManager: TimerManager
+    @ObservedObject var timerManager: TimerManager
     let panelProxy: PanelProxy
 
     @AppStorage("expandedWidth") private var expandedWidth: Double = 300
@@ -76,7 +76,7 @@ struct NotchView: View {
         .onAppear {
             updatePanelFrame()
         }
-        .onChange(of: timerManager.isExpanded) { _, isExpanded in
+        .onChange(of: timerManager.isExpanded) { isExpanded in
             if isExpanded {
                 isPopupVisible = true
                 updatePanelFrame()
@@ -85,7 +85,7 @@ struct NotchView: View {
                 collapseAnimation()
             }
         }
-        .onChange(of: isPreviewing) { _, previewing in
+        .onChange(of: isPreviewing) { previewing in
             withAnimation(.easeInOut(duration: 0.2)) {
                 previewOpacity = previewing ? 1 : 0
             }
@@ -95,8 +95,8 @@ struct NotchView: View {
                 panelProxy.panel?.alphaValue = 0
             }
         }
-        .onChange(of: expandedWidth) { _, _ in updatePanelFrame() }
-        .onChange(of: expandedHeight) { _, _ in updatePanelFrame() }
+        .onChange(of: expandedWidth) { _ in updatePanelFrame() }
+        .onChange(of: expandedHeight) { _ in updatePanelFrame() }
     }
 
     // MARK: - Content
@@ -222,7 +222,9 @@ struct NotchView: View {
         withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
             animWidth = 0
             animHeight = 0
-        } completion: {
+        }
+        // withAnimation(_:completion:) is macOS 14+; emulate with a delayed callback
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             isPopupVisible = false
             contentOpacity = 0
         }
@@ -232,11 +234,12 @@ struct NotchView: View {
         isAnimatingCollapse = true
         animHeight = max(0, animHeight + dragOffset)
         dragOffset = 0
-        
+
         withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
             animHeight = 0
             animWidth = 0
-        } completion: {
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) {
             timerManager.collapseFromDrag()
             isAnimatingCollapse = false
             isPopupVisible = false
