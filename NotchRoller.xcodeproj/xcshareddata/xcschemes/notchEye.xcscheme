@@ -97,7 +97,7 @@
    </AnalyzeAction>
    <ArchiveAction
       buildConfiguration = "Release"
-      customArchiveName = "NotchRoller"
+      customArchiveName = "Notile"
       revealArchiveInOrganizer = "YES">
    </ArchiveAction>
 </Scheme>
