@@ -49,7 +49,7 @@ Reminders don't steal focus or interrupt your workflow. They collapse automatica
 
 ## Requirements
 
-- macOS 14.7+
+- macOS 13.5 Ventura or later 
 - Apple Silicon / Intel
 
 ## Installation
