@@ -44,7 +44,7 @@ Notile 在你 Mac 的刘海区域以卷帘动画弹出提醒，帮你记住：
 
 ## 系统要求
 
-- macOS 14.7+
+- macOS 13.5 Ventura or later 
 - Apple Silicon / Intel
 
 ## 安装
