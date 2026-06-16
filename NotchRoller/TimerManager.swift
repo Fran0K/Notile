@@ -15,12 +15,11 @@ extension Notification.Name {
     static let notchRollerDidCollapse = Notification.Name("notchRollerDidCollapse")
 }
 
-@Observable
 @MainActor
-final class TimerManager {
+final class TimerManager: ObservableObject {
 
-    var isExpanded = false
-    var activeItemId: String?   // which ReminderItem is currently showing
+    @Published var isExpanded = false
+    @Published var activeItemId: String?   // which ReminderItem is currently showing
 
     let store = ReminderStore()
 
@@ -76,12 +75,17 @@ final class TimerManager {
     }
 
     func triggerNow(_ item: ReminderItem) {
+        OperationLogger.shared.log(.trigger, "Manual trigger: \"\(item.title)\"")
         expand(item: item)
     }
 
     /// Test a specific item from Settings — handles collapse-if-expanded logic.
     func testItem(_ item: ReminderItem) {
-        guard isEnabled(item) else { return }
+        guard isEnabled(item) else {
+            OperationLogger.shared.log(.trigger, "Test skipped (disabled): \"\(item.title)\"")
+            return
+        }
+        OperationLogger.shared.log(.trigger, "Test: \"\(item.title)\"")
         if isExpanded {
             isExpanded = false
             activeItemId = nil
@@ -147,11 +151,13 @@ final class TimerManager {
         guard let stored = store.items.first(where: { $0.id == item.id }),
               isEnabled(stored) else { return }
         if isOutsideActiveHours {
+            OperationLogger.shared.log(.trigger, "Skipped (outside active hours): \"\(item.title)\"")
             scheduleReminder(item: item)
             return
         }
         activeItemId = item.id
         isExpanded = true
+        OperationLogger.shared.log(.panel, "Expand: \"\(item.title)\" for \(Int(duration(for: item)))s")
         NotificationCenter.default.post(name: .notchRollerDidExpand, object: nil)
         collapseTimer?.invalidate()
         collapseTimer = Timer.scheduledTimer(
@@ -168,6 +174,7 @@ final class TimerManager {
         let itemId = activeItemId
         isExpanded = false
         activeItemId = nil
+        OperationLogger.shared.log(.panel, "Collapse (auto)")
         NotificationCenter.default.post(name: .notchRollerDidCollapse, object: nil)
         rescheduleItem(withId: itemId)
     }
@@ -184,6 +191,7 @@ final class TimerManager {
         let itemId = activeItemId
         activeItemId = nil
         isExpanded = false
+        OperationLogger.shared.log(.panel, "Collapse (drag)")
         NotificationCenter.default.post(name: .notchRollerDidCollapse, object: nil)
         rescheduleItem(withId: itemId)
     }

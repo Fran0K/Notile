@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 
 ///PanelProxy负责管理窗口状态（展开、收缩、位置、尺寸）
 
@@ -14,9 +15,8 @@ import AppKit
 
 
 @MainActor
-@Observable
-final class PanelProxy {
-    var popupFrame: NSRect = .zero {
+final class PanelProxy: ObservableObject {
+    @Published var popupFrame: NSRect = .zero {
         didSet { panel?.popupFrame = popupFrame }
     }
     weak var panel: NotchPanel?

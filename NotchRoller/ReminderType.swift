@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 struct ReminderItem: Codable, Identifiable, Equatable {
     let id: String          // built-in: "eyeRest" etc, custom: UUID
@@ -60,18 +61,18 @@ struct ReminderItem: Codable, Identifiable, Equatable {
 
     static let builtIn: [ReminderItem] = [
         ReminderItem(
-            id: "eyeRest", emoji: "", title: "眼睛休息",
-            message: "望向窗外休息一下", intervalMinutes: 45,
+            id: "eyeRest", emoji: "", title: "Eye break",
+            message: "Window break for your eyes.", intervalMinutes: 45,
             durationSeconds: 20, lottieName: "EyeBlink.json", isBuiltIn: true
         ),
         ReminderItem(
-            id: "drinkWater", emoji: "", title: "喝水",
-            message: "该喝水了", intervalMinutes: 30,
+            id: "drinkWater", emoji: "", title: "Water break",
+            message: "Time to hydrate", intervalMinutes: 30,
             durationSeconds: 15, lottieName: "DrinkWater.json", isBuiltIn: true
         ),
         ReminderItem(
-            id: "walkAround", emoji: "", title: "往外走走",
-            message: "站起来活动一下", intervalMinutes: 60,
+            id: "walkAround", emoji: "", title: "Stretch break",
+            message: "Stand up and move around.", intervalMinutes: 60,
             durationSeconds: 20, lottieName: "walk.json", isBuiltIn: true
         ),
     ]
@@ -79,11 +80,10 @@ struct ReminderItem: Codable, Identifiable, Equatable {
 
 // MARK: - ReminderStore
 
-@Observable
 @MainActor
-final class ReminderStore {
+final class ReminderStore: ObservableObject {
 
-    var items: [ReminderItem] = []
+    @Published var items: [ReminderItem] = []
 
     func item(withId id: String) -> ReminderItem? {
         items.first { $0.id == id }
@@ -100,14 +100,19 @@ final class ReminderStore {
     func add(_ item: ReminderItem) {
         items.append(item)
         save()
+        OperationLogger.shared.log(.crud, "Added reminder \"\(item.title)\" (id=\(item.id), builtIn=\(item.isBuiltIn))")
     }
 
     func delete(at offsets: IndexSet) {
         let ids = offsets.map { items[$0].id }
+        let removed = offsets.map { items[$0] }
         for i in offsets {
             items.remove(at: i)
         }
         save()
+        for item in removed {
+            OperationLogger.shared.log(.crud, "Deleted reminder \"\(item.title)\" (id=\(item.id))")
+        }
         for id in ids {
             NotificationCenter.default.post(name: .notchRollerItemDeleted, object: nil, userInfo: ["itemId": id])
         }
@@ -116,6 +121,7 @@ final class ReminderStore {
     func delete(_ item: ReminderItem) {
         items.removeAll { $0.id == item.id }
         save()
+        OperationLogger.shared.log(.crud, "Deleted reminder \"\(item.title)\" (id=\(item.id))")
         NotificationCenter.default.post(name: .notchRollerItemDeleted, object: nil, userInfo: ["itemId": item.id])
     }
 

@@ -1,6 +1,6 @@
-platform :osx, '15.7'
+platform :osx, '13.5'
 
-target 'notchEye' do
+target 'NotchRoller' do
   use_frameworks!
   pod 'lottie-ios'
 end
