@@ -145,7 +145,32 @@
       }
     },
     "common.ok" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "好的"
+          }
+        }
+      }
     },
     "common.save" : {
       "localizations" : {
@@ -975,8 +1000,7 @@
         }
       }
     },
-    "settings.general.currentVersion" : {
-      "extractionState" : "stale",
+    "settings.general.currentVersion %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1003,9 +1027,6 @@
           }
         }
       }
-    },
-    "settings.general.currentVersion %@" : {
-
     },
     "settings.general.dnd" : {
       "extractionState" : "stale",
@@ -1262,34 +1283,6 @@
         }
       }
     },
-    "settings.general.exportLog" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Export log"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Exporter le journal"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ログを書き出す"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "导出日志"
-          }
-        }
-      }
-    },
     "settings.general.exportHint" : {
       "localizations" : {
         "en" : {
@@ -1314,6 +1307,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "点此导出"
+          }
+        }
+      }
+    },
+    "settings.general.exportLog" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export log"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exporter le journal"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ログを書き出す"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出日志"
           }
         }
       }
@@ -1487,8 +1508,7 @@
         }
       }
     },
-    "settings.general.newVersion" : {
-      "extractionState" : "stale",
+    "settings.general.newVersion %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1515,9 +1535,6 @@
           }
         }
       }
-    },
-    "settings.general.newVersion %@" : {
-
     },
     "settings.general.pt" : {
       "localizations" : {
